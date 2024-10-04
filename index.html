@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COG Data Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-geotiff/dist/leaflet-geotiff.min.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([20, 0], 2); // Setting default view over the world
+
+        // Add OpenStreetMap as base layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // URLs of Cloud-Optimized GeoTIFFs (COGs) you uploaded to S3
+        const cogUrls = [
+            "https://your-s3-bucket-url/tm5-ch4-inverse-flux/example1.tif", 
+            "https://your-s3-bucket-url/tm5-ch4-inverse-flux/example2.tif"
+        ];
+
+        // Add COG layers to the map
+        cogUrls.forEach(cogUrl => {
+            const geoTiffLayer = L.leafletGeotiff(cogUrl, {
+                renderer: L.LeafletGeotiff.Palette.renderer,
+                palette: L.LeafletGeotiff.Palette.spectral, // Color scheme
+                band: 0, // Select the data band if necessary
+                opacity: 0.6 // Set layer transparency
+            }).addTo(map);
+        });
+
+        // Popup for more interactive data display
+        map.on('click', function(e) {
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(map);
+        });
+    </script>
+</body>
+</html>
